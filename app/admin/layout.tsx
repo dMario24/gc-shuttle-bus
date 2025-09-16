@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ReactNode } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 export default async function AdminLayout({
   children,
@@ -39,20 +40,22 @@ export default async function AdminLayout({
             <>
               <Link href="/admin/operations" className="block p-2 rounded-md hover:bg-gray-700">운영 대시보드</Link>
               <Link href="/admin/operations/routes" className="block p-2 rounded-md hover:bg-gray-700">노선/스케줄 관리</Link>
-              {/* <Link href="/admin/operations/users" className="block p-2 rounded-md hover:bg-gray-700">사용자 관리</Link> */}
-              {/* <Link href="/admin/operations/stats" className="block p-2 rounded-md hover:bg-gray-700">통계</Link> */}
+              <Link href="/admin/operations/companies" className="block p-2 rounded-md hover:bg-gray-700">기업 관리</Link>
+              <Link href="/admin/operations/users" className="block p-2 rounded-md hover:bg-gray-700">사용자 관리</Link>
+              <Link href="/admin/operations/stats" className="block p-2 rounded-md hover:bg-gray-700">통계</Link>
             </>
           )}
           {userRole === 'company_admin' && (
             <>
               <Link href="/admin/company" className="block p-2 rounded-md hover:bg-gray-700">기업 대시보드</Link>
-              {/* <Link href="/admin/company/employees" className="block p-2 rounded-md hover:bg-gray-700">직원 관리</Link> */}
-              {/* <Link href="/admin/company/stats" className="block p-2 rounded-md hover:bg-gray-700">이용 통계</Link> */}
+              <Link href="/admin/company/employees" className="block p-2 rounded-md hover:bg-gray-700">직원 승인</Link>
+              <Link href="/admin/company/stats" className="block p-2 rounded-md hover:bg-gray-700">이용 통계</Link>
             </>
           )}
         </nav>
       </aside>
       <div className="flex-1 bg-gray-100 p-6">
+        <Toaster position="top-right" />
         {children}
       </div>
     </div>
