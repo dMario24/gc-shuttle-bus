@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import ReservationForm from '@/components/reservations/ReservationForm';
-import { RouteWithStopsAndSchedules } from '../routes/page';
+import { RouteWithStopsAndSchedules } from '@/app/routes/page';
+import { Tables } from '@/types/database';
 
 async function getRouteDetails(routeId: string): Promise<RouteWithStopsAndSchedules> {
   const supabase = createClient();
@@ -19,7 +20,7 @@ async function getRouteDetails(routeId: string): Promise<RouteWithStopsAndSchedu
     notFound();
   }
 
-  data.gsb_schedules.sort((a, b) => a.departure_time.localeCompare(b.departure_time));
+  data.gsb_schedules.sort((a: Tables<'gsb_schedules'>, b: Tables<'gsb_schedules'>) => a.departure_time.localeCompare(b.departure_time));
 
   return data as unknown as RouteWithStopsAndSchedules;
 }
@@ -54,7 +55,7 @@ export default async function NewReservationPage({
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-2">"{route.name}" 노선 예약</h1>
+      <h1 className="text-3xl font-bold mb-2">&quot;{route.name}&quot; 노선 예약</h1>
       <p className="text-gray-600 mb-6">예약할 날짜와 시간을 선택해주세요.</p>
 
       <div className="bg-white p-8 rounded-lg shadow-md">

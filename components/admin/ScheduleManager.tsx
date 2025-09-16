@@ -2,13 +2,15 @@
 
 import { useFormState } from 'react-dom';
 import { useTransition } from 'react';
-import { addScheduleToRoute, deleteSchedule } from '@/app/admin/operations/routes/actions';
+import { addScheduleToRoute, deleteSchedule, type ScheduleState } from '@/app/admin/operations/routes/actions';
 import { Database } from '@/types/database';
 
 type Schedule = Database['public']['Tables']['gsb_schedules']['Row'];
 
+const initialFormState: ScheduleState = { errors: {} };
+
 export default function ScheduleManager({ routeId, schedules }: { routeId: string; schedules: Schedule[] }) {
-  const [addFormState, addFormAction] = useFormState(addScheduleToRoute, { errors: {} });
+  const [addFormState, addFormAction] = useFormState(addScheduleToRoute, initialFormState);
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = (scheduleId: string) => {
@@ -27,12 +29,12 @@ export default function ScheduleManager({ routeId, schedules }: { routeId: strin
         <div className="flex-1">
           <label htmlFor="departure_time" className="block text-sm font-medium">출발 시간 (HH:MM)</label>
           <input type="time" name="departure_time" id="departure_time" required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
-          {addFormState.errors?.departure_time && <p className="text-sm text-red-500">{addFormState.errors.departure_time}</p>}
+          {addFormState.errors?.departure_time && <p className="text-sm text-red-500">{addFormState.errors.departure_time.join(', ')}</p>}
         </div>
         <div className="w-24">
           <label htmlFor="total_seats" className="block text-sm font-medium">총 좌석</label>
           <input type="number" name="total_seats" id="total_seats" defaultValue={45} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
-          {addFormState.errors?.total_seats && <p className="text-sm text-red-500">{addFormState.errors.total_seats}</p>}
+          {addFormState.errors?.total_seats && <p className="text-sm text-red-500">{addFormState.errors.total_seats.join(', ')}</p>}
         </div>
         <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">추가</button>
       </form>

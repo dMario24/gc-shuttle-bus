@@ -30,8 +30,8 @@ async function getRoutes(): Promise<RouteWithStopsAndSchedules[]> {
 
   // Sort stops and schedules
   data.forEach(route => {
-    route.gsb_stops.sort((a, b) => a.stop_order - b.stop_order);
-    route.gsb_schedules.sort((a, b) => a.departure_time.localeCompare(b.departure_time));
+    route.gsb_stops.sort((a: Database['public']['Tables']['gsb_stops']['Row'], b: Database['public']['Tables']['gsb_stops']['Row']) => a.stop_order - b.stop_order);
+    route.gsb_schedules.sort((a: Database['public']['Tables']['gsb_schedules']['Row'], b: Database['public']['Tables']['gsb_schedules']['Row']) => a.departure_time.localeCompare(b.departure_time));
   });
 
   return data;

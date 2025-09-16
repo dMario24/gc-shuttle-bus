@@ -4,7 +4,12 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-export async function createReservation(formData: FormData) {
+export type ReservationState = {
+  error?: string;
+  success?: boolean;
+};
+
+export async function createReservation(prevState: ReservationState, formData: FormData): Promise<ReservationState> {
   const supabase = createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -70,10 +75,10 @@ export async function createReservation(formData: FormData) {
     return { error: '예약 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' };
   }
 
-  // 4. Success: Revalidate paths and redirect
+  // 4. Success: Revalidate paths
   revalidatePath('/my-reservations');
   revalidatePath('/routes');
-  redirect('/my-reservations?success=true');
+  return { success: true };
 }
 
 export async function cancelReservation(reservationId: string) {

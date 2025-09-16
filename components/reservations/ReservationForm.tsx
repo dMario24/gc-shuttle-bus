@@ -1,18 +1,20 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { createReservation } from '@/app/actions/reservations';
+import { createReservation, type ReservationState } from '@/app/actions/reservations';
 import type { RouteWithStopsAndSchedules } from '@/app/routes/page';
 import type { User } from '@supabase/supabase-js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type ReservationFormProps = {
   route: RouteWithStopsAndSchedules;
   user: User;
 };
 
-const initialState: { error?: string | null } = {
-  error: null,
+const initialState: ReservationState = {
+  error: undefined,
+  success: false,
 };
 
 function SubmitButton() {
@@ -32,6 +34,13 @@ function SubmitButton() {
 export default function ReservationForm({ route, user }: ReservationFormProps) {
   const [formState, formAction] = useFormState(createReservation, initialState);
   const [reservationDate, setReservationDate] = useState(new Date().toISOString().split('T')[0]);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (formState.success) {
+      router.push('/my-reservations?success=true');
+    }
+  }, [formState, router]);
 
   return (
     <form action={formAction} className="space-y-6">

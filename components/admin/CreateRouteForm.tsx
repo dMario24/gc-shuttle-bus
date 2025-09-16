@@ -1,11 +1,10 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { createRoute } from '@/app/admin/operations/routes/actions';
+import { createRoute, type RouteState } from '@/app/admin/operations/routes/actions';
 import { useEffect, useRef } from 'react';
 
-const initialState = {
-  message: null,
+const initialState: RouteState = {
   errors: {},
 };
 
@@ -44,7 +43,7 @@ export default function CreateRouteForm() {
           required
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
         />
-        {state.errors?.name && <p className="text-sm text-red-500 mt-1">{state.errors.name}</p>}
+        {state.errors?.name && <p className="text-sm text-red-500 mt-1">{state.errors.name.join(', ')}</p>}
       </div>
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700">설명</label>
@@ -54,7 +53,7 @@ export default function CreateRouteForm() {
           rows={3}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
         />
-        {state.errors?.description && <p className="text-sm text-red-500 mt-1">{state.errors.description}</p>}
+        {state.errors?.description && <p className="text-sm text-red-500 mt-1">{state.errors.description.join(', ')}</p>}
       </div>
       <SubmitButton />
       {state.errors?._form && <p className="text-sm text-red-500 mt-2">{state.errors._form}</p>}

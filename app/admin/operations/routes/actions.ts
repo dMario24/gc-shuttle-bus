@@ -4,13 +4,22 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
+export type RouteState = {
+  errors?: {
+    name?: string[];
+    description?: string[];
+    _form?: string;
+  };
+  message?: string;
+};
+
 const RouteSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, { message: '노선명은 필수입니다.' }),
   description: z.string().optional(),
 });
 
-export async function createRoute(prevState: any, formData: FormData) {
+export async function createRoute(prevState: RouteState, formData: FormData): Promise<RouteState> {
   const validatedFields = RouteSchema.safeParse({
     name: formData.get('name'),
     description: formData.get('description'),
@@ -34,7 +43,7 @@ export async function createRoute(prevState: any, formData: FormData) {
   return { message: '노선이 성공적으로 생성되었습니다.' };
 }
 
-export async function updateRoute(prevState: any, formData: FormData) {
+export async function updateRoute(prevState: RouteState, formData: FormData): Promise<RouteState> {
   const validatedFields = RouteSchema.safeParse({
     id: formData.get('id'),
     name: formData.get('name'),
@@ -84,6 +93,25 @@ export async function deleteRoute(routeId: string) {
 }
 
 // --- Schemas for Stops and Schedules ---
+export type ScheduleState = {
+  errors?: {
+    route_id?: string[];
+    departure_time?: string[];
+    total_seats?: string[];
+    _form?: string;
+  };
+  message?: string;
+};
+export type StopState = {
+  errors?: {
+    route_id?: string[];
+    name?: string[];
+    stop_order?: string[];
+    _form?: string;
+  };
+  message?: string;
+};
+
 const StopSchema = z.object({
   route_id: z.string().uuid(),
   name: z.string().min(1, { message: '정류장 이름은 필수입니다.' }),
@@ -97,7 +125,7 @@ const ScheduleSchema = z.object({
 });
 
 // --- Stop Actions ---
-export async function addStopToRoute(prevState: any, formData: FormData) {
+export async function addStopToRoute(prevState: StopState, formData: FormData): Promise<StopState> {
     const validatedFields = StopSchema.safeParse({
         route_id: formData.get('route_id'),
         name: formData.get('name'),
@@ -133,7 +161,7 @@ export async function removeStopFromRoute(stopId: string, routeId: string) {
 }
 
 // --- Schedule Actions ---
-export async function addScheduleToRoute(prevState: any, formData: FormData) {
+export async function addScheduleToRoute(prevState: ScheduleState, formData: FormData): Promise<ScheduleState> {
     const validatedFields = ScheduleSchema.safeParse({
         route_id: formData.get('route_id'),
         departure_time: formData.get('departure_time'),

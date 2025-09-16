@@ -9,13 +9,13 @@ type TicketDetails = {
   status: string;
   gsb_users: {
     full_name: string | null;
-  } | null;
+  }[] | null;
   gsb_schedules: {
     departure_time: string;
     gsb_routes: {
       name: string;
-    } | null;
-  } | null;
+    }[] | null;
+  }[] | null;
 };
 
 async function getTicketDetails(reservationId: string, user: User): Promise<TicketDetails> {
@@ -75,11 +75,11 @@ export default async function TicketPage({ params }: { params: { id: string } })
       <div className="border-t border-dashed p-6 space-y-3 bg-gray-50">
         <div className="flex justify-between">
           <span className="text-sm text-gray-500">승객명</span>
-          <span className="font-medium">{ticket.gsb_users?.full_name || user.email}</span>
+          <span className="font-medium">{ticket.gsb_users?.[0]?.full_name || user.email}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-sm text-gray-500">노선</span>
-          <span className="font-medium">{ticket.gsb_schedules?.gsb_routes?.name}</span>
+          <span className="font-medium">{ticket.gsb_schedules?.[0]?.gsb_routes?.[0]?.name}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-sm text-gray-500">탑승일</span>
@@ -87,7 +87,7 @@ export default async function TicketPage({ params }: { params: { id: string } })
         </div>
         <div className="flex justify-between">
           <span className="text-sm text-gray-500">출발시간</span>
-          <span className="font-medium">{ticket.gsb_schedules?.departure_time.substring(0, 5)}</span>
+          <span className="font-medium">{ticket.gsb_schedules?.[0]?.departure_time.substring(0, 5)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-sm text-gray-500">상태</span>
