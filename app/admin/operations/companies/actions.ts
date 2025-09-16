@@ -5,20 +5,25 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
+export type CompanyState = {
+  error?: {
+    name?: string[];
+    _form?: string[];
+  };
+  message?: string;
+};
+
 const companySchema = z.object({
   name: z.string().min(1, '기업 이름은 필수입니다.'),
 });
 
-// useFormState는 (prevState, formData) 두 개의 인자를 전달합니다.
-// prevState는 이 액션에서 사용하지 않지만, 시그니처를 맞춰주어야 합니다.
-export async function createCompany(prevState: any, formData: FormData) {
+export async function createCompany(prevState: CompanyState, formData: FormData): Promise<CompanyState> {
   const supabase = createClient();
   const parsed = companySchema.safeParse({
     name: formData.get('name'),
   });
 
   if (!parsed.success) {
-    // Zod 에러를 useFormState가 사용할 수 있는 형태로 변환합니다.
     return { error: parsed.error.flatten().fieldErrors };
   }
 
@@ -31,11 +36,11 @@ export async function createCompany(prevState: any, formData: FormData) {
   }
 
   revalidatePath('/admin/operations/companies');
-  redirect('/admin/operations/companies');
+  // On success, redirect is handled by the form component
+  return { message: '기업이 성공적으로 생성되었습니다.' };
 }
 
-// bind를 통해 id가 첫 번째 인자로 전달되므로, prevState와 formData를 그 뒤에 받습니다.
-export async function updateCompany(id: string, prevState: any, formData: FormData) {
+export async function updateCompany(id: string, prevState: CompanyState, formData: FormData): Promise<CompanyState> {
   const supabase = createClient();
   const parsed = companySchema.safeParse({
     name: formData.get('name'),
@@ -56,7 +61,7 @@ export async function updateCompany(id: string, prevState: any, formData: FormDa
 
   revalidatePath('/admin/operations/companies');
   revalidatePath(`/admin/operations/companies/${id}/edit`);
-  redirect('/admin/operations/companies');
+  return { message: '기업 정보가 성공적으로 업데이트되었습니다.' };
 }
 
 export async function deleteCompany(id: string, prevState: any) {

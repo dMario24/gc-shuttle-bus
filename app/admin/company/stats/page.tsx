@@ -1,6 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
+type CompanyStats = {
+  total_employees: number;
+  total_reservations: number;
+  most_popular_route_name: string | null;
+  most_popular_route_count: number;
+};
+
 export default async function CompanyStatsPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,18 +33,19 @@ export default async function CompanyStatsPage() {
     );
   }
 
-  const { data: stats, error } = await supabase
+  const { data, error } = await supabase
     .rpc('get_company_stats', { p_company_id: adminProfile.company_id })
     .single();
 
   if (error) {
     return <p className="text-red-500">통계 정보를 불러오는 중 오류 발생: {error.message}</p>;
   }
+  const stats = data as CompanyStats;
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">{adminProfile.gsb_companies?.name} 이용 통계</h1>
+        <h1 className="text-2xl font-bold">{adminProfile.gsb_companies?.[0]?.name} 이용 통계</h1>
         <p className="text-gray-600">자사 직원의 셔틀 이용 현황입니다.</p>
       </div>
 

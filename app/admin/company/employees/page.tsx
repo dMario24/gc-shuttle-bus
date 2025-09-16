@@ -43,7 +43,7 @@ export default async function EmployeeApprovalPage() {
       <div>
         <h1 className="text-2xl font-bold">직원 승인</h1>
         <p className="text-gray-600">
-          <span className="font-semibold">{adminProfile.gsb_companies?.name}</span> 소속으로 가입을 신청한 직원 목록입니다.
+          <span className="font-semibold">{adminProfile.gsb_companies?.[0]?.name}</span> 소속으로 가입을 신청한 직원 목록입니다.
         </p>
       </div>
 
@@ -66,7 +66,7 @@ export default async function EmployeeApprovalPage() {
                     <td className="p-3">{employee.email}</td>
                     <td className="p-3">{new Date(employee.created_at).toLocaleDateString()}</td>
                     <td className="p-3 text-center">
-                      <ApproveButton userId={employee.id} />
+                      <ApproveButton employeeId={employee.id} companyId={adminProfile.company_id} />
                     </td>
                   </tr>
                 ))

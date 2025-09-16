@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
+export type ApproveState = { error?: string; message?: string; };
+
 async function verifyCompanyAdmin(companyId: string) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -19,7 +21,10 @@ async function verifyCompanyAdmin(companyId: string) {
     }
 }
 
-export async function approveEmployee(employeeId: string, companyId: string) {
+export async function approveEmployee(prevState: ApproveState, formData: FormData): Promise<ApproveState> {
+    const employeeId = formData.get('employeeId') as string;
+    const companyId = formData.get('companyId') as string;
+
     if (!employeeId || !companyId) return { error: "필요한 정보가 누락되었습니다." };
 
     try {

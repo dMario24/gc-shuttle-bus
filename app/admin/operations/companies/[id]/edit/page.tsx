@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { updateCompany } from '../../actions';
-import { CompanyForm } from '../../_components/CompanyForm';
 import Link from 'next/link';
+import EditCompanyClientPage from './EditCompanyClientPage';
 
 interface EditCompanyPageProps {
   params: { id: string };
@@ -12,15 +11,13 @@ export default async function EditCompanyPage({ params }: EditCompanyPageProps) 
   const supabase = createClient();
   const { data: company, error } = await supabase
     .from('gsb_companies')
-    .select('*')
+    .select('id, name')
     .eq('id', params.id)
     .single();
 
   if (error || !company) {
     notFound();
   }
-
-  const updateCompanyWithId = updateCompany.bind(null, company.id);
 
   return (
     <div className="space-y-6">
@@ -33,10 +30,7 @@ export default async function EditCompanyPage({ params }: EditCompanyPageProps) 
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow">
-        <CompanyForm
-          action={updateCompanyWithId}
-          initialData={{ name: company.name }}
-        />
+        <EditCompanyClientPage company={company} />
       </div>
     </div>
   );

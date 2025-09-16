@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { createCompany } from './actions';
-import { CompanyForm } from './_components/CompanyForm';
+import { CreateCompanyForm } from './_components/CreateCompanyForm';
 import { DeleteCompanyButton } from './_components/DeleteCompanyButton';
 
 export default async function CompaniesPage() {
@@ -23,7 +22,7 @@ export default async function CompaniesPage() {
 
       <div className="bg-white p-6 rounded-lg shadow">
         <h2 className="text-xl font-semibold mb-4">새 기업 추가</h2>
-        <CompanyForm action={createCompany} />
+        <CreateCompanyForm />
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow">

@@ -1,13 +1,16 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { approveEmployee } from '../actions';
+import { approveEmployee, type ApproveState } from '../../actions';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 interface ApproveButtonProps {
-  userId: string;
+  employeeId: string;
+  companyId: string;
 }
+
+const initialState: ApproveState = {};
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -22,20 +25,21 @@ function SubmitButton() {
   );
 }
 
-export function ApproveButton({ userId }: ApproveButtonProps) {
-  const approveEmployeeWithId = approveEmployee.bind(null, userId);
-  const [state, formAction] = useFormState(approveEmployeeWithId, { error: undefined });
+export function ApproveButton({ employeeId, companyId }: ApproveButtonProps) {
+  const [state, formAction] = useFormState(approveEmployee, initialState);
 
   useEffect(() => {
     if (state?.error) {
       toast.error(state.error);
-    } else if (state?.error === null) {
-        toast.success("직원을 승인했습니다.");
+    } else if (state?.message) {
+        toast.success(state.message);
     }
   }, [state]);
 
   return (
     <form action={formAction}>
+      <input type="hidden" name="employeeId" value={employeeId} />
+      <input type="hidden" name="companyId" value={companyId} />
       <SubmitButton />
     </form>
   );

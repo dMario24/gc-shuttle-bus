@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { approveEmployee } from './actions';
-import { revalidatePath } from 'next/cache';
+import { ApproveButton } from './employees/_components/ApproveButton';
 
 async function getCompanyData(user: any) {
     const supabase = createClient();
@@ -53,19 +52,7 @@ async function getCompanyData(user: any) {
     };
 }
 
-function ApproveButton({ employeeId, companyId }: { employeeId: string; companyId: string; }) {
-    const approveAction = async () => {
-        'use server';
-        await approveEmployee(employeeId, companyId);
-    };
-    return (
-        <form action={approveAction}>
-            <button type="submit" className="text-xs font-semibold text-white bg-green-600 hover:bg-green-700 rounded-full px-3 py-1">
-                승인
-            </button>
-        </form>
-    );
-}
+
 
 export default async function CompanyAdminDashboard() {
     const supabase = createClient();

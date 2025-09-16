@@ -1,9 +1,11 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
+import type { CompanyState } from '../actions';
 
 interface CompanyFormProps {
-  action: (formData: FormData) => Promise<{ error: any }>;
+  action: (formData: FormData) => void;
+  state: CompanyState;
   initialData?: { name: string };
 }
 
@@ -20,11 +22,9 @@ function SubmitButton() {
   );
 }
 
-export function CompanyForm({ action, initialData }: CompanyFormProps) {
-  const [state, formAction] = useFormState(action, { error: null });
-
+export function CompanyForm({ action, state, initialData }: CompanyFormProps) {
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={action} className="space-y-4">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
           기업 이름
@@ -37,10 +37,10 @@ export function CompanyForm({ action, initialData }: CompanyFormProps) {
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           required
         />
-        {state?.error?.name && <p className="mt-1 text-sm text-red-500">{state.error.name[0]}</p>}
+        {state?.error?.name && <p className="mt-1 text-sm text-red-500">{state.error.name.join(', ')}</p>}
       </div>
 
-      {state?.error?._form && <p className="mt-1 text-sm text-red-500">{state.error._form[0]}</p>}
+      {state?.error?._form && <p className="mt-1 text-sm text-red-500">{state.error._form.join(', ')}</p>}
 
       <SubmitButton />
     </form>

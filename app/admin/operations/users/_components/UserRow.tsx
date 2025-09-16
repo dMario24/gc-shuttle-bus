@@ -1,8 +1,8 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { updateUser } from '../actions';
-import { useEffect, useId, useRef } from 'react';
+import { updateUser, type UserState } from '../actions';
+import { useEffect, useId } from 'react';
 import toast from 'react-hot-toast';
 
 // We need to define the types explicitly because they are coming from a server component
@@ -13,7 +13,7 @@ type User = {
   role: 'employee' | 'company_admin' | 'operations_admin';
   is_approved: boolean;
   company_id: string | null;
-  gsb_companies: { name: string } | null;
+  gsb_companies: { name: string }[] | null;
 };
 
 type Company = {
@@ -25,6 +25,8 @@ interface UserRowProps {
   user: User;
   companies: Company[];
 }
+
+const initialState: UserState = {};
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -41,16 +43,15 @@ function SubmitButton() {
 
 export function UserRow({ user, companies }: UserRowProps) {
   const formId = useId();
-  const updateUserWithId = updateUser.bind(null, user.id);
-  const [state, formAction] = useFormState(updateUserWithId, { error: null });
+  const [state, formAction] = useFormState(updateUser, initialState);
 
   useEffect(() => {
     if (state?.error) {
       toast.error(state.error);
-    } else if (state?.error === null) {
-      toast.success(`${user.full_name || user.email}님의 정보가 업데이트되었습니다.`);
+    } else if (state?.message) {
+      toast.success(state.message);
     }
-  }, [state, user.full_name, user.email]);
+  }, [state]);
 
   return (
     <tr className="hover:bg-gray-50">
@@ -96,6 +97,7 @@ export function UserRow({ user, companies }: UserRowProps) {
       </td>
       <td className="p-3">
         <form id={formId} action={formAction}>
+          <input type="hidden" name="userId" value={user.id} />
           <SubmitButton />
         </form>
       </td>

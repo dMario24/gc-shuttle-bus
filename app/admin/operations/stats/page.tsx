@@ -1,17 +1,36 @@
 import { createClient } from '@/lib/supabase/server';
 
+type RouteStat = {
+  route_id: string;
+  route_name: string;
+  reservation_count: number;
+};
+
+type DailyStat = {
+  reservation_day: string;
+  reservation_count: number;
+};
+
+type OccupancyStat = {
+  total_seats: number;
+  total_reservations: number;
+  occupancy_rate: number;
+};
+
 export default async function StatsPage() {
   const supabase = createClient();
 
   // 1. Daily usage statistics
-  const { data: dailyStats, error: dailyStatsError } = await supabase.rpc('get_daily_reservation_counts');
+  const { data: dailyStatsData, error: dailyStatsError } = await supabase.rpc('get_daily_reservation_counts');
+  const dailyStats = dailyStatsData as DailyStat[];
 
   // 2. Route popularity
-  const { data: routeStats, error: routeStatsError } = await supabase.rpc('get_route_reservation_counts');
+  const { data: routeStatsData, error: routeStatsError } = await supabase.rpc('get_route_reservation_counts');
+  const routeStats = routeStatsData as RouteStat[];
 
   // 3. Overall seat occupancy
-  const { data: occupancy, error: occupancyError } = await supabase.rpc('get_overall_seat_occupancy');
-
+  const { data: occupancyData, error: occupancyError } = await supabase.rpc('get_overall_seat_occupancy');
+  const occupancy = occupancyData as OccupancyStat[];
 
   if (dailyStatsError || routeStatsError || occupancyError) {
     return (
