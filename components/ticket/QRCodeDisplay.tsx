@@ -1,6 +1,6 @@
 'use client';
 
-import { QRCode } from 'qrcode.react';
+import QRCode from 'qrcode.react';
 
 type QRCodeDisplayProps = {
   value: string;
