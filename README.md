@@ -200,4 +200,129 @@ CREATE POLICY "Allow full access to operations_admin" ON gsb_routes FOR ALL USIN
 CREATE POLICY "Allow full access to operations_admin" ON gsb_stops FOR ALL USING ( (SELECT role FROM gsb_users WHERE id = auth.uid()) = 'operations_admin' );
 CREATE POLICY "Allow full access to operations_admin" ON gsb_schedules FOR ALL USING ( (SELECT role FROM gsb_users WHERE id = auth.uid()) = 'operations_admin' );
 -- Add more admin policies for other tables...
+
+---
+
+## 초기 데이터 설정 및 사용 가이드
+
+이 가이드는 애플리케이션을 처음 설정하고 사용하는 데 필요한 기초 데이터를 입력하는 방법을 안내합니다. 모든 SQL 쿼리는 Supabase 대시보드의 **SQL Editor**에서 실행해야 합니다.
+
+### 사전 준비: Supabase 사용자 인증
+
+데이터를 추가하기 전에, 먼저 Supabase 대시보드의 **Authentication** 섹션에서 테스트할 사용자(운영 관리자, 기업 관리자, 직원)를 미리 생성해야 합니다. 사용자를 생성하면 `auth.users` 테이블에 자동으로 추가되며, 각 사용자는 고유한 `id` (UUID)를 갖게 됩니다. 이 `id`는 아래 단계에서 `gsb_users` 테이블에 권한을 설정할 때 필요합니다.
+
+### 1. 기업(Company) 추가
+
+가장 먼저 직원이 소속될 회사를 추가해야 합니다.
+
+```sql
+-- 'GSB 컨소시엄'이라는 이름의 회사를 추가합니다.
+INSERT INTO public.gsb_companies (name)
+VALUES ('GSB 컨소시엄');
+
+-- ID를 직접 지정하여 추가할 수도 있습니다.
+-- INSERT INTO public.gsb_companies (id, name)
+-- VALUES ('your-custom-uuid', 'Another Company');
+```
+
+### 2. 사용자(User) 추가 및 역할 부여
+
+`handle_new_user` 트리거에 의해 `auth.users`에 새로운 사용자가 추가되면 `gsb_users` 테이블에 자동으로 기본 정보가 복사됩니다. 다음 단계는 각 사용자의 역할을 설정하고, 필요한 경우 회사와 연결하는 것입니다.
+
+**A. 운영 관리자 (Operations Admin) 추가**
+
+운영 관리자는 노선, 스케줄 등 시스템의 핵심 데이터를 관리합니다.
+
+1.  Supabase Auth에서 운영 관리자 계정을 생성합니다.
+2.  해당 사용자의 `id`를 복사합니다.
+3.  아래 쿼리를 실행하여 역할을 `operations_admin`으로 변경하고, `is_approved` 상태를 `true`로 설정합니다.
+
+```sql
+-- gsb_users 테이블에서 특정 사용자의 역할을 'operations_admin'으로 업데이트합니다.
+-- 'user_id_from_auth' 부분을 실제 운영 관리자의 UUID로 변경하세요.
+UPDATE public.gsb_users
+SET
+  role = 'operations_admin',
+  is_approved = true
+WHERE id = 'user_id_from_auth';
+```
+
+**B. 기업 관리자 (Company Admin) 추가**
+
+기업 관리자는 소속 직원을 관리하고 승인합니다.
+
+1.  Supabase Auth에서 기업 관리자 계정을 생성합니다.
+2.  해당 사용자의 `id`와 위에서 생성한 `gsb_companies`의 `id`를 확인합니다.
+3.  아래 쿼리를 실행하여 역할을 부여하고 회사에 소속시킵니다.
+
+```sql
+-- gsb_users 테이블에서 특정 사용자를 'company_admin'으로 업데이트하고 특정 회사에 배정합니다.
+-- 'user_id_from_auth'와 'company_id_from_gsb_companies'를 실제 UUID로 변경하세요.
+UPDATE public.gsb_users
+SET
+  role = 'company_admin',
+  is_approved = true,
+  company_id = 'company_id_from_gsb_companies'
+WHERE id = 'user_id_from_auth';
+```
+
+**C. 직원 (Employee) 추가 및 승인**
+
+직원은 앱을 통해 직접 회원가입하는 것이 일반적입니다. 가입 시 `gsb_users` 테이블에 `role`은 `employee`, `is_approved`는 `false`인 상태로 생성됩니다. 기업 관리자는 관리자 페이지에서 직원의 가입을 승인해야 합니다.
+
+만약 수동으로 직원을 추가하고 승인하려면 아래와 같이 실행합니다.
+
+```sql
+-- 직원의 company_id를 설정하고 is_approved를 true로 변경하여 가입을 승인합니다.
+-- 'user_id_from_auth'와 'company_id_from_gsb_companies'를 실제 UUID로 변경하세요.
+UPDATE public.gsb_users
+SET
+  company_id = 'company_id_from_gsb_companies',
+  is_approved = true
+WHERE id = 'user_id_from_auth';
+```
+
+### 3. 노선, 정류장 및 스케줄 추가
+
+운영 관리자가 노선과 운행 스케줄을 설정하는 방법입니다.
+
+**A. 노선 (Route) 추가**
+
+```sql
+-- 판교 테크노밸리로 가는 노선을 추가합니다.
+INSERT INTO public.gsb_routes (name, description)
+VALUES ('판교행', '서울 주요 지점에서 판교 테크노밸리로 가는 노선')
+RETURNING id; -- 이 쿼리는 생성된 노선의 id를 반환하므로, 아래 정류장 추가 시 사용하세요.
+```
+
+**B. 정류장 (Stop) 추가**
+
+위에서 생성된 노선 `id`를 사용하여 해당 노선에 포함될 정류장들을 순서대로 추가합니다.
+
+```sql
+-- 'route_id_from_above'를 위에서 반환된 노선 ID로 변경하세요.
+INSERT INTO public.gsb_stops (route_id, name, stop_order)
+VALUES
+  ('route_id_from_above', '강남역', 1),
+  ('route_id_from_above', '양재역', 2),
+  ('route_id_from_above', '판교역', 3);
+```
+
+**C. 운행 스케줄 (Schedule) 추가**
+
+마찬가지로, 노선 `id`를 사용하여 해당 노선의 운행 시간을 추가합니다.
+
+```sql
+-- 'route_id_from_above'를 위에서 반환된 노선 ID로 변경하세요.
+INSERT INTO public.gsb_schedules (route_id, departure_time, total_seats)
+VALUES
+  ('route_id_from_above', '07:30:00', 45),
+  ('route_id_from_above', '08:00:00', 45);
+```
+
+### 4. 기타: 예약 및 탑승 관리
+
+-   **예약**: 직원은 앱의 '노선 조회/예약' 페이지에서 원하는 스케줄을 선택하여 예약할 수 있습니다. 예약 데이터는 `gsb_reservations` 테이블에 저장됩니다.
+-   **탑승권 확인**: 예약이 완료되면 `id`를 기반으로 QR 코드가 생성되며, '모바일 탑승권' 페이지에서 확인할 수 있습니다.
+-   **탑승 처리**: 운전기사는 스캐너 앱으로 QR 코드를 스캔하여 `gsb_boarding_records`에 탑승 기록을 남깁니다.
 ```
