@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+# GSB: 기업 공동 셔틀 예약 플랫폼
+
+본 프로젝트는 여러 기업의 직원들이 공동으로 셔틀 버스를 예약하고 관리할 수 있는 모바일 웹 애플리케이션입니다. Next.js 14와 Supabase를 기반으로 구축되었습니다.
+
+## 주요 기능
+
+- **사용자 역할 기반 시스템**: 직원(승객), 기업 관리자, 운영 관리자의 세 가지 역할을 지원합니다.
+- **셔틀 예약 및 관리**: 사용자는 노선을 조회하고 원하는 시간대에 셔틀을 예약하거나 취소할 수 있습니다.
+- **모바일 탑승권**: 예약 완료 시 QR 코드 형태의 모바일 탑승권이 발급됩니다.
+- **관리자 대시보드**: 운영 관리자는 노선/정류장/스케줄을 관리하고, 기업 관리자는 소속 직원의 이용 현황을 확인하고 승인할 수 있습니다.
+- **리워드 시스템**: 5일 연속 탑승 시 자동으로 쿠폰이 발급되는 리워드 기능이 포함되어 있습니다.
+
 ## Getting Started
 
 First, run the development server:

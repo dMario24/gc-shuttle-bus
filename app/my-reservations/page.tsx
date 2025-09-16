@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { cancelReservation } from '@/app/actions/reservations';
-import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 type ReservationWithDetails = {
   id: string;
