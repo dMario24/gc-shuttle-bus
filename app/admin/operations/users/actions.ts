@@ -10,7 +10,7 @@ const userUpdateSchema = z.object({
   is_approved: z.boolean(),
 });
 
-export async function updateUser(userId: string, formData: FormData) {
+export async function updateUser(userId: string, prevState: any, formData: FormData) {
   const supabase = createClient();
 
   const companyId = formData.get('company_id');

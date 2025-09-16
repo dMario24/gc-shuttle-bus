@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
-export async function approveEmployee(userId: string) {
+export async function approveEmployee(userId: string, prevState: any) {
   const supabase = createClient();
 
   // 1. Get current user and their company
